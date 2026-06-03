@@ -115,6 +115,7 @@ static void PlotTest(httplib::Client* cli) {
     fout << dataJson["data"].dump();
   }
   char command[1024];
+  // Длинная строка разбита на части (длина ≤ 80 символов)
   snprintf(command, sizeof(command),
            "python \"%s\" ThreeBodyPlotter \"%s\" \"%s\"",
            plotterPath.c_str(), jsonDataPath.c_str(), videoOutputPath.c_str());
