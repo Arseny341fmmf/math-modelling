@@ -78,6 +78,15 @@ class TasksQueue {
    * случае.
    */
   bool IsTaskFinished(int id);
+
+   /**
+    * @brief Добавить решалку в очередь задач.
+    * @param wrapper Решалка, добавляемая в очередь.
+    * @return Идентификатор добавленной задачи.
+    *
+    * Функция добавляет задачу в очередь задач и присваивает ей уникальный
+    * идентификатор. 
+    */
   template<typename Wrapper>
   int AddTask(Wrapper* wrapper) {
     std::lock_guard<std::mutex> lock(mutex_);
