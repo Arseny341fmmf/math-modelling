@@ -4,6 +4,7 @@
 
 #include <httplib.h>
 #include <nlohmann/json.hpp>
+
 #include "test_core.hpp"
 
 static void SimpleDoubleTest(httplib::Client* cli);
@@ -116,15 +117,18 @@ static void PlotTest(httplib::Client* cli) {
     fout << dataJson["data"].dump();
   }
   char command[1024];
-  // Строка разбита на части, каждая часть ≤ 80 символов
-  snprintf(command, sizeof(command),
-           "python \"%s\" ThreeBodyPlotter \"%s\" \"%s\"",
-           plotterPath.c_str(), jsonDataPath.c_str(), videoOutputPath.c_str());
+  const char* fmt = "python \"%s\" ThreeBodyPlotter \"%s\" \"%s\"";
+  snprintf(command, sizeof(command), fmt,
+           plotterPath.c_str(),
+           jsonDataPath.c_str(),
+           videoOutputPath.c_str());
   int code = system(command);
   if (code != 0) {
-    snprintf(command, sizeof(command),
-             "python3 \"%s\" ThreeBodyPlotter \"%s\" \"%s\"",
-             plotterPath.c_str(), jsonDataPath.c_str(), videoOutputPath.c_str());
+    const char* fmt3 = "python3 \"%s\" ThreeBodyPlotter \"%s\" \"%s\"";
+    snprintf(command, sizeof(command), fmt3,
+             plotterPath.c_str(),
+             jsonDataPath.c_str(),
+             videoOutputPath.c_str());
     code = system(command);
   }
   REQUIRE_EQUAL(code, 0);

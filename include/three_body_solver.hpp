@@ -39,8 +39,7 @@ class ThreeBodySolver : public AbstractSolver<T> {
   std::mutex mtx_;
 
   std::vector<nlohmann::json> frames_;
-
-  T nextExportTime_;   // <-- добавьте эту строку
+  T nextExportTime_;
 
   std::vector<std::array<T, 3>> ComputeAccelerations(
       const std::vector<std::array<T, 3>>& pos) const;
