@@ -128,6 +128,3 @@ class TasksQueue {
 }  // namespace mm
 
 #endif  // METHODS_TASKS_QUEUE_HPP_
-
-
-#endif  // METHODS_TASKS_QUEUE_HPP_
