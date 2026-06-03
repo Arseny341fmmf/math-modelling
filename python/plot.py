@@ -1,5 +1,4 @@
 import sys
-from plotters import heat_conduction_reference_example_plotter as hcrep
 from plotters.three_body_plotter import ThreeBodyPlotter
 
 if __name__ == '__main__':
@@ -9,8 +8,6 @@ if __name__ == '__main__':
         raise SystemError
 
     plotters = {
-        "HeatConductionReferenceExamplePlotter":
-            hcrep.HeatConductionReferenceExamplePlotter,
         "ThreeBodyPlotter": ThreeBodyPlotter,
     }
 
