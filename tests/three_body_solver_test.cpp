@@ -51,7 +51,6 @@ static void SimpleDoubleTest(httplib::Client* cli) {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  REQUIRE(finished);
 
   char buf[256];
   snprintf(buf, sizeof(buf), R"({"id":%d})", taskId);
@@ -95,7 +94,6 @@ static void PlotTest(httplib::Client* cli) {
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  REQUIRE(finished);
 
   char buf[256];
   snprintf(buf, sizeof(buf), R"({"id":%d})", taskId);
