@@ -1,7 +1,7 @@
-#include <string>
-#include <httplib.h>
 #include <cstdio>
+#include <string>
 #include <thread>
+#include <httplib.h>
 #include <nlohmann/json.hpp>
 #include "test_core.hpp"
 
@@ -60,7 +60,6 @@ static void SimpleDoubleTest(httplib::Client* cli) {
 }
 
 static void PlotTest(httplib::Client* cli) {
-  // Аналогично SimpleDoubleTest, но дополнительно проверяем рисовалку
   nlohmann::json input = R"(
 {
   "value_type": "double",
@@ -102,7 +101,6 @@ static void PlotTest(httplib::Client* cli) {
   auto dataJson = nlohmann::json::parse(dataRes->body);
   REQUIRE(dataJson["status"] == "ok");
 
-  // Сохраняем данные во временный файл и запускаем рисовалку
   std::filesystem::path pythonDir("python");
   std::string plotterPath = (pythonDir / "plot.py").string();
   std::filesystem::path dataDir("data");
@@ -117,7 +115,7 @@ static void PlotTest(httplib::Client* cli) {
     fout << dataJson["data"].dump();
   }
   char command[1024];
-    snprintf(command, sizeof(command),
+  snprintf(command, sizeof(command),
            "python \"%s\" ThreeBodyPlotter \"%s\" \"%s\"",
            plotterPath.c_str(), jsonDataPath.c_str(), videoOutputPath.c_str());
   int code = system(command);

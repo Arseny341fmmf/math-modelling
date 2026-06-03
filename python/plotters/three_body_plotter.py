@@ -44,7 +44,7 @@ class ThreeBodyPlotter(AbstractPlotter):
                 trajectories[i].append((x, y, z))
                 traj = np.array(trajectories[i])
                 if len(traj) > 1:
-                    ax.plot(traj[:,0], traj[:,1], traj[:,2],
+                    ax.plot(traj[:, 0], traj[:, 1], traj[:, 2],
                             color=colors[i], alpha=0.5)
                 ax.scatter(x, y, z, color=colors[i], s=80)
 

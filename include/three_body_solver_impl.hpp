@@ -20,7 +20,8 @@ ThreeBodySolver<T>::ThreeBodySolver(
       masses_(masses), charges_(charges), c_(c),
       positions_(initialPositions), velocities_(initialVelocities),
       k1_pos_(3), k1_vel_(3), k2_pos_(3), k2_vel_(3),
-      k3_pos_(3), k3_vel_(3), k4_pos_(3), k4_vel_(3) {
+      k3_pos_(3), k3_vel_(3), k4_pos_(3), k4_vel_(3),
+      nextExportTime_(exportPeriod) {
   frames_.reserve(static_cast<size_t>(finishTime / exportPeriod) + 1);
 }
 
@@ -83,7 +84,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_mid, &vel_mid] {   // захватить vel_mid по ссылке
+          [this, p, &pos_mid, &vel_mid] {
             k2_pos_[p] = vel_mid[p];
             auto acc = ComputeAccelerations(pos_mid);
             k2_vel_[p] = acc[p];
@@ -104,7 +105,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_mid, &vel_mid] {   // захватить vel_mid
+          [this, p, &pos_mid, &vel_mid] {
             k3_pos_[p] = vel_mid[p];
             auto acc = ComputeAccelerations(pos_mid);
             k3_vel_[p] = acc[p];
@@ -126,7 +127,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_full, &vel_full] {   // захватить vel_full
+          [this, p, &pos_full, &vel_full] {
             k4_pos_[p] = vel_full[p];
             auto acc = ComputeAccelerations(pos_full);
             k4_vel_[p] = acc[p];
@@ -145,17 +146,17 @@ bool ThreeBodySolver<T>::MakeStep() {
     }
   }
 
-  // ----- экспорт кадра, если пришло время -----
-  // Используем методы базового класса (предполагается, что они есть)
-  if (this->NeedExport()) {
+  // ----- экспорт кадра -----
+  T next_time = this->currentTime + tau;
+  if (next_time >= nextExportTime_) {
     nlohmann::json frame;
-    frame["time"] = this->currentTime + tau;
+    frame["time"] = next_time;
     frame["positions"] = nlohmann::json::array();
     for (const auto& p : positions_) {
       frame["positions"].push_back({p[0], p[1], p[2]});
     }
     frames_.push_back(frame);
-    this->UpdateNextExport();
+    nextExportTime_ += this->exportPeriod;
   }
 
   return true;
