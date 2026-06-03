@@ -10,60 +10,44 @@
 
 namespace mm {
 
-/**
- * @brief Решалка задачи трёх тел с кулоновским взаимодействием.
- * @tparam T Тип данных (float/double).
- */
 template<typename T>
 class ThreeBodySolver : public AbstractSolver<T> {
-public:
-    /**
-     * @brief Конструктор.
-     * @param tau Шаг по времени.
-     * @param finishTime Конечное время.
-     * @param exportPeriod Период сохранения.
-     * @param masses Массы частиц [m1,m2,m3].
-     * @param charges Заряды частиц [q1,q2,q3].
-     * @param c Константа взаимодействия (кулоновская).
-     * @param initialPositions Начальные позиции [ [x1,y1,z1], ... ].
-     * @param initialVelocities Начальные скорости [ [vx1,vy1,vz1], ... ].
-     */
-    ThreeBodySolver(T tau, T finishTime, T exportPeriod,
-                    const std::array<T, 3>& masses,
-                    const std::array<T, 3>& charges,
-                    T c,
-                    const std::vector<std::array<T, 3>>& initialPositions,
-                    const std::vector<std::array<T, 3>>& initialVelocities);
+ public:
+  ThreeBodySolver(T tau, T finishTime, T exportPeriod,
+                  const std::array<T, 3>& masses,
+                  const std::array<T, 3>& charges,
+                  T c,
+                  const std::vector<std::array<T, 3>>& initialPositions,
+                  const std::vector<std::array<T, 3>>& initialVelocities);
 
-    bool MakeStep() override;
-    void ExportData(nlohmann::json* output) override;
+  bool MakeStep() override;
+  void ExportData(nlohmann::json* output) override;
 
-private:
-    std::array<T, 3> masses;      ///< Массы
-    std::array<T, 3> charges;     ///< Заряды
-    T c;                          ///< Константа взаимодействия
+ private:
+  std::array<T, 3> masses_;
+  std::array<T, 3> charges_;
+  T c_;
 
-    std::vector<std::array<T, 3>> positions;  ///< Текущие позиции
-    std::vector<std::array<T, 3>> velocities; ///< Текущие скорости
+  std::vector<std::array<T, 3>> positions_;
+  std::vector<std::array<T, 3>> velocities_;
 
-    // Массивы для коэффициентов Рунге-Кутты
-    std::vector<std::array<T, 3>> k1_pos, k1_vel;
-    std::vector<std::array<T, 3>> k2_pos, k2_vel;
-    std::vector<std::array<T, 3>> k3_pos, k3_vel;
-    std::vector<std::array<T, 3>> k4_pos, k4_vel;
+  std::vector<std::array<T, 3>> k1_pos_, k1_vel_;
+  std::vector<std::array<T, 3>> k2_pos_, k2_vel_;
+  std::vector<std::array<T, 3>> k3_pos_, k3_vel_;
+  std::vector<std::array<T, 3>> k4_pos_, k4_vel_;
 
-    std::mutex mtx;   ///< Мьютекс для synchronize()
+  std::mutex mtx_;
 
-    /// Вычисляет ускорения всех частиц по заданным позициям.
-    std::vector<std::array<T, 3>> computeAccelerations(
-        const std::vector<std::array<T, 3>>& pos) const;
+  std::vector<nlohmann::json> frames_;   // накопленные кадры
 
-    /// Синхронизирует потоки (захват и освобождение мьютекса).
-    void synchronize();
+  std::vector<std::array<T, 3>> ComputeAccelerations(
+      const std::vector<std::array<T, 3>>& pos) const;
+
+  void Synchronize();
 };
 
-} // namespace mm
+}  // namespace mm
 
 #include "three_body_solver_impl.hpp"
 
-#endif // INCLUDE_THREE_BODY_SOLVER_HPP_
+#endif  // INCLUDE_THREE_BODY_SOLVER_HPP_
