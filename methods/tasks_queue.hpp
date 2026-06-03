@@ -93,7 +93,7 @@ class TasksQueue {
 
     int id = nextId_++;
 
-    tasks_[id] = std::unique_ptr<AbstractSolverWrapperBase>(wrapper);
+    tasks_[id] = std::unique_ptr<AbstractSolverWrapper>(wrapper);
     statuses_[id] = "running";
 
     condition_.notify_one();
@@ -101,7 +101,6 @@ class TasksQueue {
     return id;
   }
 
-  bool IsTaskFinished(int id);
   nlohmann::json GetFinishedTaskData(int id);
 
  private:
@@ -118,7 +117,7 @@ class TasksQueue {
   std::mutex mutex_;
   std::condition_variable condition_;
 
-  std::map<int, std::unique_ptr<AbstractSolverWrapperBase>> tasks_;
+  std::map<int, std::unique_ptr<AbstractSolverWrapper>> tasks_;
   std::map<int, std::string> statuses_;
   std::map<int, nlohmann::json> finishedData_;
 };

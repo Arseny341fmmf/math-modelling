@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <string>
 
+#include <filesystem>
 #include <thread>
 #include <nlohmann/json.hpp>
 
