@@ -70,6 +70,12 @@ public:
   std::thread queueThread;
 
     /** Проверяет, завершена ли задача. */
+    /**
+     * @brief Проверить, завершена ли задача.
+     * @param id Идентификатор задачи.
+     * @return Функция возвращает true, если задача завершена, и false в противном
+     * случае.
+     */
     bool IsTaskFinished(int id) {
         std::lock_guard<std::mutex> lock(mtx);
         auto it = statuses.find(id);
