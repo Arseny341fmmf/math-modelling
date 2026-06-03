@@ -29,10 +29,9 @@ if __name__ == '__main__':
         raise SystemError(f"Unknown plotter: {plotter_name}")
 
     Plotter = plotters[plotter_name]
-    # Конструктор AbstractPlotter ожидает (input_path, output_path) 
+    # Конструктор AbstractPlotter ожидает (input_path, output_path)
     # или (data, output_path) – здесь мы передаём данные напрямую.
     # Для совместимости создадим экземпляр, передав вместо пути данные.
-    # В AbstractPlotter обычно load_data() читает файл, переопределим поведение.
     plotter = Plotter(input_json_path, output_video_path)
     plotter.data = frames   # подменяем загруженные данные
     plotter.plot()

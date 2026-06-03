@@ -22,4 +22,3 @@ if __name__ == '__main__':
     plotter = Plotter(sys.argv[2], sys.argv[3])
 
     plotter.plot()
-

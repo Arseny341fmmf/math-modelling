@@ -1,8 +1,8 @@
+#include <httplib.h>
 #include <cstdio>
 #include <string>
-#include <thread>
 
-#include <httplib.h>
+#include <thread>
 #include <nlohmann/json.hpp>
 
 #include "test_core.hpp"
