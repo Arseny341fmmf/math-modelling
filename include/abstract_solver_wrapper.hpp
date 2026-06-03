@@ -1,50 +1,111 @@
+/**
+ * @file abstract_solver_wrapper.hpp
+ * @author Mikhail Lozhnikov
+ *
+ * Здесь определена оболочка для абстрактной решалки над различными типами
+ * данных.
+ */
+
 #ifndef INCLUDE_ABSTRACT_SOLVER_WRAPPER_HPP_
 #define INCLUDE_ABSTRACT_SOLVER_WRAPPER_HPP_
 
-#include <nlohmann/json.hpp>
-#include "abstract_solver.hpp"
+
+#include <abstract_solver.hpp>
 
 namespace mm {
 
 /**
- * @brief Обёртка над AbstractSolver для хранения в очереди задач.
- * @tparam T Тип данных (float/double).
+ * @brief Класс оболочки над абстрактной решалкой.
  */
-template<typename T>
 class AbstractSolverWrapper {
-public:
-    explicit AbstractSolverWrapper(AbstractSolver<T>* solver)
-        : solver(solver) {}
+ public:
+  /**
+   * @brief Функция решает задачу и сохраняет решение в выходной JSON.
+   *
+   * @param output Выходной JSON.
+   * @return Функция возвращает true в случае успешного нахождения решения и
+   * false в противном случае.
+   */
+  virtual bool Solve(nlohmann::json* output) = 0;
 
-    virtual ~AbstractSolverWrapper() {
-        delete solver;
-    }
-
-   
-    void Run() {
-        solver->Run();
-    }
-
-    /** Возвращает все экспортированные данные. */
-    nlohmann::json GetData() {
-        nlohmann::json dataArray = nlohmann::json::array();
-        nlohmann::json frame;
-        frame["time"] = solver->GetCurrentTime();
-        solver->ExportData(&frame);
-        dataArray.push_back(frame);
-        nlohmann::json result;
-        result["status"] = "ok";
-        result["data"] = dataArray;
-        return result;
-    }
-
-private:
-    AbstractSolver<T>* solver;
+  /**
+   * @brief Деструктор.
+   */
+  virtual ~AbstractSolverWrapper() { }
 };
 
-using FloatAbstractSolverWrapper = AbstractSolverWrapper<float>;
-using DoubleAbstractSolverWrapper = AbstractSolverWrapper<double>;
+/**
+ * @brief Класс оболочки над абстрактной решалкой для типа данных float.
+ */
+class FloatAbstractSolverWrapper : public AbstractSolverWrapper {
+ private:
+  //! Абстрактная решалка для типа данных float.
+  AbstractSolver<float>* solver;
 
-} // namespace mm
+ public:
+  /**
+   * @brief Конструктор.
+   * @param solver Абстрактная решалка для типа данных float.
+   */
+  explicit FloatAbstractSolverWrapper(AbstractSolver<float>* solver) :
+    solver(solver)
+  { }
 
-#endif // INCLUDE_ABSTRACT_SOLVER_WRAPPER_HPP_
+  /**
+   * @brief Функция решает задачу и сохраняет решение в выходной JSON.
+   *
+   * @param output Выходной JSON.
+   * @return Функция возвращает true в случае успешного нахождения решения и
+   * false в противном случае.
+   */
+  bool Solve(nlohmann::json* output) override {
+    return solver->Solve(output);
+  }
+
+  /**
+   * @brief Деструктор.
+   */
+  ~FloatAbstractSolverWrapper() {
+    delete solver;
+  }
+};
+
+/**
+ * @brief Класс оболочки над абстрактной решалкой для типа данных double.
+ */
+class DoubleAbstractSolverWrapper : public AbstractSolverWrapper {
+ private:
+  //! Абстрактная решалка для типа данных float.
+  AbstractSolver<double>* solver;
+
+ public:
+  /**
+   * @brief Конструктор.
+   * @param solver Абстрактная решалка для типа данных double.
+   */
+  explicit DoubleAbstractSolverWrapper(AbstractSolver<double>* solver) :
+    solver(solver)
+  { }
+
+  /**
+   * @brief Функция решает задачу и сохраняет решение в выходной JSON.
+   *
+   * @param output Выходной JSON.
+   * @return Функция возвращает true в случае успешного нахождения решения и
+   * false в противном случае.
+   */
+  bool Solve(nlohmann::json* output) override {
+    return solver->Solve(output);
+  }
+
+  /**
+   * @brief Деструктор.
+   */
+  ~DoubleAbstractSolverWrapper() {
+    delete solver;
+  }
+};
+
+}  // namespace mm
+
+#endif  // INCLUDE_ABSTRACT_SOLVER_WRAPPER_HPP_
