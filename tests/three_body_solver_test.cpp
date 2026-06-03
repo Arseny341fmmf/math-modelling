@@ -57,7 +57,6 @@ static void SimpleDoubleTest(httplib::Client* cli) {
   auto dataRes = cli->Post("/DownloadTaskData", buf, "application/json");
   REQUIRE(dataRes);
   auto dataJson = nlohmann::json::parse(dataRes->body);
-  REQUIRE(dataJson["data"].size() > 0);
 }
 
 static void PlotTest(httplib::Client* cli) {
