@@ -11,8 +11,8 @@
 #include <httplib.h>
 
 /* Сюда нужно добавить объявления тестовых функций. */
+void TestHeatConductionReferenceExampleSolver(httplib::Client* cli);
 void TestThreeBodySolver(httplib::Client* cli);
-
 /* Конец вставки. */
 
 #endif  // TESTS_TEST_HPP_

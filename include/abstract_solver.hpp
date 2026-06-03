@@ -47,11 +47,6 @@ class AbstractSolver {
   { }
 
   /**
-   * @brief Виртуальный деструктор.
-   */
-  virtual ~AbstractSolver() { }
-
-  /**
    * @brief Получить текущее время.
    * @return Текущее время.
    */
