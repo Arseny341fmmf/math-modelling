@@ -147,7 +147,7 @@ bool ThreeBodySolver<T>::MakeStep() {
   }
 
   // ----- экспорт кадра -----
-  T next_time = this->currentTime + tau;
+  T next_time = this->CurrentTime + tau;
   if (next_time >= nextExportTime_) {
     nlohmann::json frame;
     frame["time"] = next_time;
