@@ -5,6 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import os
 from plotters.abstract_plotter import AbstractPlotter
 
+
 class ThreeBodyPlotter(AbstractPlotter):
 
     def plot(self):

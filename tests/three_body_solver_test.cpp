@@ -1,3 +1,4 @@
+#include <string>
 #include <httplib.h>
 #include <cstdio>
 #include <thread>
@@ -116,7 +117,7 @@ static void PlotTest(httplib::Client* cli) {
     fout << dataJson["data"].dump();
   }
   char command[1024];
-  snprintf(command, sizeof(command),
+    snprintf(command, sizeof(command),
            "python \"%s\" ThreeBodyPlotter \"%s\" \"%s\"",
            plotterPath.c_str(), jsonDataPath.c_str(), videoOutputPath.c_str());
   int code = system(command);

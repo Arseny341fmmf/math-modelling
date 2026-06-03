@@ -35,7 +35,7 @@ ThreeBodySolver<T>::ComputeAccelerations(
       T dx = pos[j][0] - pos[i][0];
       T dy = pos[j][1] - pos[i][1];
       T dz = pos[j][2] - pos[i][2];
-      T r2 = dx * dx + dy * dy + dz * dz;
+      T r2 = dx*dx + dy*dy + dz*dz;
       T r = std::sqrt(r2);
       T force = c_ * charges_[i] * charges_[j] / r2;
       acc[i][0] += force / masses_[i] * (dx / r);
@@ -74,8 +74,8 @@ bool ThreeBodySolver<T>::MakeStep() {
   std::vector<std::array<T, 3>> pos_mid(3), vel_mid(3);
   for (int p = 0; p < 3; ++p) {
     for (int d = 0; d < 3; ++d) {
-      pos_mid[p][d] = positions_[p][d] + (tau / 2) * k1_pos_[p][d];
-      vel_mid[p][d] = velocities_[p][d] + (tau / 2) * k1_vel_[p][d];
+      pos_mid[p][d] = positions_[p][d] + (tau/2) * k1_pos_[p][d];
+      vel_mid[p][d] = velocities_[p][d] + (tau/2) * k1_vel_[p][d];
     }
   }
   Synchronize();
@@ -83,7 +83,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_mid, &vel_mid] {   // захват vel_mid
+          [this, p, &pos_mid, &vel_mid] {   // захватить vel_mid по ссылке
             k2_pos_[p] = vel_mid[p];
             auto acc = ComputeAccelerations(pos_mid);
             k2_vel_[p] = acc[p];
@@ -95,8 +95,8 @@ bool ThreeBodySolver<T>::MakeStep() {
   // ----- k3 -----
   for (int p = 0; p < 3; ++p) {
     for (int d = 0; d < 3; ++d) {
-      pos_mid[p][d] = positions_[p][d] + (tau / 2) * k2_pos_[p][d];
-      vel_mid[p][d] = velocities_[p][d] + (tau / 2) * k2_vel_[p][d];
+      pos_mid[p][d] = positions_[p][d] + (tau/2) * k2_pos_[p][d];
+      vel_mid[p][d] = velocities_[p][d] + (tau/2) * k2_vel_[p][d];
     }
   }
   Synchronize();
@@ -104,7 +104,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_mid, &vel_mid] {   // захват vel_mid
+          [this, p, &pos_mid, &vel_mid] {   // захватить vel_mid
             k3_pos_[p] = vel_mid[p];
             auto acc = ComputeAccelerations(pos_mid);
             k3_vel_[p] = acc[p];
@@ -126,7 +126,7 @@ bool ThreeBodySolver<T>::MakeStep() {
     std::vector<std::future<void>> futures;
     for (int p = 0; p < 3; ++p) {
       futures.push_back(std::async(std::launch::async,
-          [this, p, &pos_full] {
+          [this, p, &pos_full, &vel_full] {   // захватить vel_full
             k4_pos_[p] = vel_full[p];
             auto acc = ComputeAccelerations(pos_full);
             k4_vel_[p] = acc[p];
@@ -138,14 +138,15 @@ bool ThreeBodySolver<T>::MakeStep() {
   // ----- финальное обновление -----
   for (int p = 0; p < 3; ++p) {
     for (int d = 0; d < 3; ++d) {
-      positions_[p][d] += (tau / 6) * (k1_pos_[p][d] + 2 * k2_pos_[p][d] +
-                                       2 * k3_pos_[p][d] + k4_pos_[p][d]);
-      velocities_[p][d] += (tau / 6) * (k1_vel_[p][d] + 2 * k2_vel_[p][d] +
-                                        2 * k3_vel_[p][d] + k4_vel_[p][d]);
+      positions_[p][d] += (tau/6) * (k1_pos_[p][d] + 2*k2_pos_[p][d] +
+                                     2*k3_pos_[p][d] + k4_pos_[p][d]);
+      velocities_[p][d] += (tau/6) * (k1_vel_[p][d] + 2*k2_vel_[p][d] +
+                                     2*k3_vel_[p][d] + k4_vel_[p][d]);
     }
   }
 
-  // ----- экспорт кадра -----
+  // ----- экспорт кадра, если пришло время -----
+  // Используем методы базового класса (предполагается, что они есть)
   if (this->NeedExport()) {
     nlohmann::json frame;
     frame["time"] = this->currentTime + tau;
