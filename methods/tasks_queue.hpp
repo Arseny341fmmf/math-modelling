@@ -14,6 +14,7 @@
 #include <mutex>
 #include <thread>
 #include <condition_variable>
+#include <string>   // <-- добавлено
 #include <nlohmann/json.hpp>
 #include "abstract_solver_wrapper.hpp"
 
@@ -27,14 +28,10 @@ class TasksQueue {
   template<typename Wrapper>
   int AddTask(Wrapper* wrapper) {
     std::lock_guard<std::mutex> lock(mutex_);
-
     int id = nextId_++;
-
     tasks_[id] = std::unique_ptr<AbstractSolverWrapperBase>(wrapper);
     statuses_[id] = "running";
-
     condition_.notify_one();
-
     return id;
   }
 
@@ -42,7 +39,7 @@ class TasksQueue {
   nlohmann::json GetFinishedTaskData(int id);
 
  private:
-  void ProcessTasks();
+  void ProcessTasks();   // эта функция должна быть определена в .cpp
 
   int nextId_;
   std::atomic<bool> stop_;
