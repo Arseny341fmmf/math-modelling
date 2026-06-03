@@ -1,0 +1,137 @@
+/**
+@page three_body_solver Задача трёх тел (кулоновское взаимодействие)
+
+\section description Постановка задачи
+
+Система трёх частиц с массами \f$m_k\f$ и зарядами \f$q_k\f$ движется под действием электрического поля (магнитным полем пренебрегаем). Уравнения движения:
+
+\f[
+m_k \frac{d^2 \bar{x}_k}{dt^2} = \bar{F}_k(\bar{x}_1,\bar{x}_2,\bar{x}_3),
+\quad k=1,2,3,
+\f]
+
+где полная сила, действующая на частицу \f$k\f$:
+
+\f[
+\bar{F}_k = \sum_{j\neq k} \bar{F}_{kj},\qquad 
+\bar{F}_{kj} = C\,\frac{q_k q_j}{|\bar{x}_k-\bar{x}_j|^2}\,
+\frac{\bar{x}_j-\bar{x}_k}{|\bar{x}_j-\bar{x}_k|}.
+\f]
+
+Параметр \f$C\f$ – константа (кулоновская постоянная). Начальные условия задаются координатами и скоростями всех трёх частиц.
+
+\section method Численный метод
+
+Система ОДУ второго порядка сводится к системе первого порядка введением скоростей:
+
+\f[
+\frac{d\bar{x}_k}{dt} = \bar{v}_k,\qquad 
+\frac{d\bar{v}_k}{dt} = \frac{\bar{F}_k}{m_k}.
+\f]
+
+Интегрирование выполняется методом Рунге–Кутты 4‑го порядка с постоянным шагом \f$\tau\f$.
+
+Вычисления коэффициентов \f$k_1,k_2,k_3,k_4\f$ для всех трёх частиц распараллелены на три потока с помощью `std::async`. Функция `synchronize()` обеспечивает корректную синхронизацию потоков при доступе к общим данным.
+
+\section input Входные JSON‑данные
+
+```json
+{
+  "value_type": "double",
+  "tau": 0.001,
+  "finish_time": 10.0,
+  "export_period": 0.1,
+  "masses": [1.0, 1.0, 1.0],
+  "charges": [1.0, 1.0, -1.0],
+  "c": 1.0,
+  "initial_positions": [[0,0,0], [1,0,0], [0.5,0.866,0]],
+  "initial_velocities": [[0,0,0], [0,0.5,0], [0,-0.5,0]]
+}
+
+\section output
+
+{
+  "status": "ok",
+  "data": [
+    { "time": 0.0, "positions": [[...],[...],[...]] },
+    { "time": 0.1, "positions": [[...],[...],[...]] },
+    ...
+  ]
+}
+
+\section visualization
+
+
+---
+
+## 2. `include/abstract_solver.hpp`
+
+```cpp
+#ifndef INCLUDE_ABSTRACT_SOLVER_HPP_
+#define INCLUDE_ABSTRACT_SOLVER_HPP_
+
+#include <nlohmann/json.hpp>
+
+namespace mm {
+
+/**
+ * @brief Абстрактный базовый класс для всех решалок.
+ * @tparam T Тип данных для вещественной арифметики (float/double).
+ */
+template<typename T>
+class AbstractSolver {
+public:
+    /**
+     * @brief Конструктор.
+     * @param tau Шаг по времени.
+     * @param finishTime Конечное время моделирования.
+     * @param exportPeriod Интервал времени между сохранениями состояния.
+     */
+    AbstractSolver(T tau, T finishTime, T exportPeriod)
+        : tau(tau), finishTime(finishTime), exportPeriod(exportPeriod),
+          nextExportTime(exportPeriod), currentTime(0.0) {}
+
+    virtual ~AbstractSolver() = default;
+
+    /**
+     * @brief Запускает цикл интегрирования до finishTime.
+     * @return true, если все шаги выполнены успешно.
+     */
+    bool Run() {
+        while (!IsFinished()) {
+            if (!MakeStep())
+                return false;
+            currentTime += tau;
+        }
+        return true;
+    }
+
+    /** @brief Выполняет один шаг по времени (чисто виртуальный). */
+    virtual bool MakeStep() = 0;
+
+    /** @brief Экспортирует текущее состояние в JSON. */
+    virtual void ExportData(nlohmann::json* output) = 0;
+
+    /** @brief Возвращает текущее время моделирования. */
+    T GetCurrentTime() const { return currentTime; }
+
+    /** @brief Проверяет, достигнуто ли finishTime. */
+    bool IsFinished() const { return currentTime >= finishTime; }
+
+    /** @brief Нужно ли экспортировать состояние на текущем шаге. */
+    bool NeedExport() const { return currentTime >= nextExportTime; }
+
+    /** @brief Обновляет время следующего экспорта после сохранения. */
+    void UpdateNextExport() { nextExportTime += exportPeriod; }
+
+protected:
+    T tau;              ///< Шаг интегрирования
+    T finishTime;       ///< Конечное время
+    T exportPeriod;     ///< Период сохранения
+    T nextExportTime;   ///< Время следующего сохранения
+    T currentTime;      ///< Текущее время
+};
+
+} // namespace mm
+
+#endif // INCLUDE_ABSTRACT_SOLVER_HPP_
