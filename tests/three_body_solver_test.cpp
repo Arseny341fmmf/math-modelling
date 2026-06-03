@@ -49,10 +49,10 @@ static void SimpleDoubleTest(httplib::Client* cli) {
       finished = true;
       break;
     }
-    if (finished) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+  if (finished) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(25));
   }
 
   char buf[256];
@@ -93,10 +93,10 @@ static void PlotTest(httplib::Client* cli) {
       finished = true;
       break;
     }
-    if (finished) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(25));
-    }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+  if (finished) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(25));
   }
 
   char buf[256];
